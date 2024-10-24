@@ -27,7 +27,6 @@ digits.addEventListener("click", (e)=>{
 })
 
 document.addEventListener("keydown", (e)=>{
-    console.log(e);
     if(SUPPORTED_KEYBOARD_INPUT.includes(e.key)){
         if(e.key === "." && !decimal.className.includes("on")){
             decimal.classList.add("on");
@@ -43,11 +42,10 @@ document.addEventListener("keydown", (e)=>{
                     op1_array = [];
                     op2_array = [];
                     operand2 = null;
-                    display.textContent = operand1;
+                    display.textContent = Number.isInteger(operand1)? operand1: operand1.toFixed(3).replace(/0+$/, '');
                 } else {
                     operand1 = operand1 !==null?operand1:Number(op1_array.join(""));
                     decimal.classList.remove("on");
-                    // display.textContent = operand1? op2_array.join("") : op1_array.join("");
                 }
                 if(e.key !== "="){
                     operator = e.key;
@@ -55,14 +53,7 @@ document.addEventListener("keydown", (e)=>{
                 }
             } else if(e.key==="Backspace"){
                 const lastInput = input.pop();
-                if(["+","-","*","/"].includes(lastInput)){
-                    operator = null;
-                } else if(!operand1){
-                    op1_array.pop();
-                } else if(!operand2){
-                    op2_array.pop();
-                }
-                display.textContent = operand1 !==null? op2_array.join("") : op1_array.join("");
+                handleDelete(lastInput);
             } else if(e.key === "Clear"){
                 clear();
             } else{
@@ -89,15 +80,13 @@ operators.addEventListener("click", (e) =>{
     //e.g. 4 + 6 - 9 becomes 4 + 6 = 10, then 10 - 9  = 1
     if(operand1 !==null && operator && operand2 !==null){
         operate(operand1, operator, operand2);
-        display.textContent = result;
+        display.textContent = Number.isInteger(result)? result: result.toFixed(3).replace(/0+$/, '');
         operand1 = result;
         op1_array = [];
         op2_array = [];
         operand2 = null;
-        operator = e.target.textContent;
+        // operator = e.target.textContent;
     }
-    
-    console.log(operand1);
     operator = e.target.textContent;
     input.push(e.target.textContent);
     // display.textContent = operator;
@@ -112,7 +101,7 @@ equals.addEventListener("click", (e) => {
     if(operand1 !== null && operator && operand2 !== null){
         operate(operand1, operator, operand2);
     }
-    display.textContent = result;
+    display.textContent = Number.isInteger(result)? result: result.toFixed(3).replace(/0+$/, '');
     console.log(`${operand1} ${operator} ${operand2} = ${result}`);
     op1_array = [];
     op2_array = [];
@@ -127,14 +116,7 @@ ac.addEventListener("click", (e)=>{
 
 back.addEventListener("click", ()=>{
     const lastInput = input.pop();
-    if(["+","-","*","/"].includes(lastInput)){
-        operator = null;
-    } else if(!operand1){
-        op1_array.pop();
-    } else if(!operand2){
-        op2_array.pop();
-    } 
-    display.textContent = operand1 !==null? op2_array.join("") : op1_array.join("");
+    handleDelete(lastInput);
 })
 
 function operate(operand1, operator, operand2){
@@ -152,9 +134,6 @@ function operate(operand1, operator, operand2){
             break;
         }
         case "/": {
-            console.log("inside /")
-            console.log(operand2===0);
-
             result = operand2===0? "ERROR" : operand1/operand2;
             break; 
         }
@@ -172,6 +151,17 @@ function clear(){
     decimal.classList.remove("on");
 }
 
-function reset(){
-
+function handleDelete(lastInput){
+    if(["+","-","*","/"].includes(lastInput)){
+        operator = null;
+        display.textContent = Number.isInteger(operand1)? operand1: operand1.toFixed(3).replace(/0+$/, '');
+    } else if(!operand1){
+        op1_array.pop();
+        if(lastInput === ".") decimal.classList.remove("on");
+        display.textContent = operand1 !==null? op2_array.join("") : op1_array.join("");
+    } else if(!operand2){
+        op2_array.pop();
+        if(lastInput === ".") decimal.classList.remove("on");
+        display.textContent = operand1 !==null? op2_array.join("") : op1_array.join("");
+    } else display.textContent = Number.isInteger(operand1)? operand1: operand1.toFixed(3).replace(/0+$/, '');
 }
